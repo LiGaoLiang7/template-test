@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>使用wp api获取wordpress获取数据 用artTemplate渲染</title>
+    <style>
+    h3 {
+        display: inline-block;
+    }
+    
+    .articlist,
+    .getData {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .ui.button {
+        width: 100%;
+        padding: 15px 0;
+    }
+    
+    .postitem {
+        margin-top: 50px;
+    }
+    
+    p {
+        padding: 5px 0px;
+    }
+    
+    h3 {
+        padding-bottom: 0;
+        margin: 0;
+    }
+    
+    em {
+        font-style: normal;
+        color: #999;
+        margin-top: 18px;
+    }
+    
+    a {
+        text-decoration: none;
+        outline: none;
+        color: green;
+        display: inline-block;
+        border-bottom: 1px dotted transparent;
+    }
+    
+    a:hover {
+        border-bottom: 1px dotted #cd1218;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="getData">
+        <button class="ui button">获取数据</button>
+    </div>
+    <div id="container" class="articlist">
+    </div>
+    <script src="../dist/template.js"></script>
+    <script src="http://cdn.bootcss.com/jquery/3.0.0/jquery.js"></script>
+    <!-- 这个API是获取wordpress博客数据用的  -->
+    <script src="./api.min.js"></script>
+    <!-- 渲染的模板 -->
+    <script id="template" type="text/html">
+        {{each data as item i}}
+        <div class='postitem'>
+            <a href="{{item.url}}" target="_blank">
+                <!-- 添加a的属性也是很简单的 -->
+                <h3>序号{{i+1}} : {{item.title}}</h3></a>
+            <!-- 添加辅助方法获取 [&hellip] 之前的字符串  -->
+            <p>{{item.excerpt | getHellipString}}<em><br>发表日期:  {{item.date}}</em> </p>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+    /* 检查一个对象是不是空的 */
+    function isObjectEmpty(obj) {
+        for (var item in obj) {
+            return false;
+        }
+        return true;
+    }
+    template.helper('getHellipString', function(str) {
+        var index = str.indexOf('&hellip');
+        return str.substring(0, index);
+    });
+
+    /* wp api 设置 */
+    $.fn.api.settings.api = {
+            'posts': 'http://lefeier.net/?wpapi=get_posts&dev=1&'
+        }
+        /* 返回数据JSON对象 */
+
+    $(".ui.button").api({
+        action: 'posts',
+        on: 'click',
+        onSuccess: function(res) {
+            var data = [];
+            var temp = {},
+                html = "";
+            res.posts.map(function(post) {
+                data.push(post);
+            });
+            temp['data'] = data;
+            if (!isObjectEmpty(temp)) {
+                html = template('template', temp);
+                document.getElementById('container').innerHTML = html;
+            }
+        }
+    });
+    </script>
+</body>
+
+</html>

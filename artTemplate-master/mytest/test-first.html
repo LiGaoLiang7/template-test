@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <script src="../dist/template.js"></script>
+</head>
+
+<body>
+    <div id="content"></div>
+    <script id="test" type="text/html">
+        <!-- 这块的是简洁语法 -->
+        <h1>{{title}}</h1>
+        <ul>
+            {{each list as value i}}
+            <li>索引{{ i + 1}} : {{value}}</li>
+            {{/each}}
+        </ul>
+        {{if conentFlag}} {{each artic as item i}}
+        <div>
+            <h3>标题{{i + 1}} : {{item.name}}</h3>
+            <p>内容: {{item.content}}</p>
+            <em>发表季节: {{item.month | whichSeason}} </em>
+            <!--调用方法-->
+        </div>
+        {{/each}} {{/if}}
+    </script>
+    <script>
+    // <!-- 如果需要调用外部函数就需要添加辅助方法  -->
+    template.helper('whichSeason', function(month) {
+        var s = "";
+        switch (month) {
+            case 1:
+            case 2:
+            case 3:
+                s = '春季';
+                break;
+            case 4:
+            case 5:
+            case 6:
+                s = '夏季';
+                break;
+            case 7:
+            case 8:
+            case 9:
+                s = '秋季';
+                break;
+            case 10:
+            case 11:
+            case 12:
+                s = '冬季';
+                break;
+            default:
+                s = '未知';
+                break;
+        }
+        return s;
+    });
+
+    var data = {
+        title: '模板测试',
+        list: ['文艺', '博客', '摄影', '展览', '电影', '民谣', '旅行', '吉他'],
+        conentFlag: true,
+        artic: [{
+            name: '成为前端高手',
+            content: '如何在一年之内达到',
+            month: 1
+        }, {
+            name: '傻逼',
+            content: '你早干什么去了',
+            month: 12
+        }, {
+            name: '当生活一地鸡毛',
+            content: '活成自己才是最重要的',
+            month: 5
+        }, {
+            name: 'Mactalk',
+            content: '我们的工作并没有想象中那么辛苦',
+            month: 8
+        }]
+    };
+    var html = template('test', data);
+    document.getElementById('content').innerHTML = html;
+    </script>
+    <!-- 
+         template(id, data) 方法，会根据ID查找模板，用data的参数渲染，如果data是空的对象，会返回空的模板,如果定义了data变量，没有赋值，则返回的是渲染函数。
+     -->
+    <script>
+    var source = '<ul>' + '{{each list as value i}}' + '<li>索引 {{i + 1}} ：{{value}}</li>' + '{{/each}}' + '</ul>';
+
+    var render = template.compile(source);
+    var html2 = render({
+        list: ['摄影', '电影', '民谣', '旅行', '吉他']
+    });
+
+    document.getElementById('content').innerHTML = html;
+    </script>
+</body>
+
+</html>
